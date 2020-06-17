@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import docker
 import os
 import subprocess
 
@@ -7,13 +8,18 @@ import subprocess
 app = FastAPI()  
 
 class Item(BaseModel):
-    message: str
+    code: str
 
 @app.get("/") 
 async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/poster")
+@app.post("/poster/")
 async def create_item(item: Item):
-    return item
+    print(item.code)
+    comando = 'sudo docker run python:3.7 python -c ' + item.code
+    stream = os.popen(comando)
+    output = stream.read()
+    print(output)
+    return output
